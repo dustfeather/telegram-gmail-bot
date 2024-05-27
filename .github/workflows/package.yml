@@ -10,12 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.12]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -24,14 +19,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.x'
 
       - name: Cache pip
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.cache/pip
-            C:\Users\runneradmin\AppData\Local\pip\Cache
+          path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
@@ -41,12 +34,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install setuptools wheel
           pip install -r requirements.txt
-        shell: bash
 
       - name: Build package
         run: |
           python setup.py sdist bdist_wheel
-        shell: bash
 
       - name: Publish package
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -56,10 +47,9 @@ jobs:
         run: |
           pip install twine
           twine upload dist/*
-        shell: bash
 
       - name: Upload package as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: python-package-${{ matrix.os }}-${{ matrix.python-version }}
+          name: python-package
           path: dist/*
