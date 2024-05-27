@@ -2,13 +2,15 @@ import os
 import json
 import datetime
 import base64
-import telegram
 import pickle
+import asyncio
+import telegram
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
+from tenacity import retry, wait_exponential, stop_after_attempt
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,8 +18,13 @@ load_dotenv()
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 TOKEN_FILE = 'token.pickle'
 
+async def send_telegram_message(token, chat_id, message):
+    bot = telegram.Bot(token=token)
+    await bot.send_message(chat_id=chat_id, text=message)
+
 def authenticate_gmail():
     creds = None
+    token_needs_refresh = False
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, 'rb') as token:
             creds = pickle.load(token)
@@ -25,6 +32,7 @@ def authenticate_gmail():
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
+            token_needs_refresh = True
         else:
             client_id = os.getenv('GOOGLE_CLIENT_ID')
             client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
@@ -45,7 +53,7 @@ def authenticate_gmail():
         with open(TOKEN_FILE, 'wb') as token:
             pickle.dump(creds, token)
 
-    return creds
+    return creds, token_needs_refresh
 
 def get_email_summary(service):
     query = 'newer_than:1d'
@@ -69,12 +77,9 @@ def get_email_summary(service):
 
     return summary
 
-def send_telegram_message(token, chat_id, message):
-    bot = telegram.Bot(token=token)
-    bot.send_message(chat_id=chat_id, text=message)
-
-def main():
-    creds = authenticate_gmail()
+@retry(wait=wait_exponential(multiplier=1, min=4, max=10), stop=stop_after_attempt(5))
+async def main():
+    creds, token_needs_refresh = authenticate_gmail()
     service = build('gmail', 'v1', credentials=creds)
     summary = get_email_summary(service)
 
@@ -84,7 +89,10 @@ def main():
     if not telegram_token or not telegram_chat_id:
         raise ValueError("Telegram bot token or chat ID not set in environment variables.")
 
-    send_telegram_message(telegram_token, telegram_chat_id, summary)
+    if token_needs_refresh:
+        await send_telegram_message(telegram_token, telegram_chat_id, "Gmail token has been refreshed.")
+
+    await send_telegram_message(telegram_token, telegram_chat_id, summary)
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
