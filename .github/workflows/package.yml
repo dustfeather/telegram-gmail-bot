@@ -39,14 +39,14 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
 
-      - name: Publish package
+      - name: Publish package to GitHub Packages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          TWINE_USERNAME: ${{ github.actor }}
+          TWINE_PASSWORD: ${{ secrets.GH_TOKEN }}
         run: |
           pip install twine
-          twine upload dist/*
+          twine upload --repository-url https://upload.github.com/dustfeather/telegram-gmail-bot dist/*
 
       - name: Upload package as artifact
         uses: actions/upload-artifact@v3
