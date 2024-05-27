@@ -2,6 +2,7 @@
 cachetools==5.3.3
 certifi==2024.2.2
 charset-normalizer==3.3.2
+gmail_summary==0.1.1
 google-api-core==2.19.0
 google-api-python-client==2.130.0
 google-auth==2.29.0
@@ -24,6 +25,7 @@ python-telegram-bot==21.2
 requests==2.32.2
 requests-oauthlib==2.0.0
 rsa==4.9
+setuptools==70.0.0
 sniffio==1.3.1
 tenacity==8.3.0
 uritemplate==4.1.1
