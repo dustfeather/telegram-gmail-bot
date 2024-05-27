@@ -55,7 +55,7 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.GH_TOKEN }}
         run: |
           pip install twine
-          twine upload --repository-url https://upload.github.com/OWNER/REPOSITORY dist/*
+          twine upload --repository-url https://upload.github.com/dustfeather/telegram-gmail-bot dist/*
 
       - name: Upload package as artifact
         uses: actions/upload-artifact@v3
