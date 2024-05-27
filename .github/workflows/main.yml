@@ -3,9 +3,6 @@ name: Run Gmail Summary Script
 on:
   schedule:
     - cron: '0 8 * * *' # This runs the workflow daily at 8am UTC (which is 11am GMT+3)
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -19,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.x'
 
       - name: Cache pip dependencies
         id: cache-pip
