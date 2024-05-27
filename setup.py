@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="telegram-gmail-bot",
-    version="0.1.9",
+    version="0.1.10",
     author="Catalin Teodorescu",
     author_email="dustfeather@gmail.com",
     description="A bot that connects Telegram with Gmail",
