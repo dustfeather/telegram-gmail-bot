@@ -43,7 +43,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.GH_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
           pip install twine
           echo "[distutils]" > ~/.pypirc
@@ -56,7 +56,7 @@ jobs:
           echo "repository: https://upload.github.com/dustfeather/telegram-gmail-bot" >> ~/.pypirc
           echo "username: __token__" >> ~/.pypirc
           echo "password: ${{ secrets.GH_TOKEN }}" >> ~/.pypirc
-          twine upload -r github dist/*
+          twine upload -r pypi dist/*
 
       - name: Upload package as artifact
         uses: actions/upload-artifact@v3
