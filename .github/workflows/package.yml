@@ -58,7 +58,7 @@ jobs:
       - name: Publish package to GitHub Packages
         run: |
           pip install twine
-          twine upload --repository-url https://upload.github.com/OWNER/REPOSITORY dist/*
+          twine upload --repository-url https://upload.github.com/dustfeather/telegram-gmail-bot dist/*
         env:
           TWINE_USERNAME: ${{ github.actor }}
           TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
