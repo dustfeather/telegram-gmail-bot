@@ -1,28 +1,49 @@
 import os
 import json
 import datetime
-from google.auth.transport.requests import Request
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
+import base64
 import telegram
+import pickle
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+TOKEN_FILE = 'token.pickle'
 
 def authenticate_gmail():
     creds = None
-    service_account_json = os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')
-    user_to_impersonate = os.getenv('GOOGLE_USER_TO_IMPERSONATE')
+    if os.path.exists(TOKEN_FILE):
+        with open(TOKEN_FILE, 'rb') as token:
+            creds = pickle.load(token)
 
-    if not service_account_json or not user_to_impersonate:
-        raise ValueError("Service account JSON or user to impersonate not set in environment variables.")
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            client_id = os.getenv('GOOGLE_CLIENT_ID')
+            client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
 
-    service_account_info = json.loads(service_account_json)
-    creds = service_account.Credentials.from_service_account_info(
-        service_account_info, scopes=SCOPES, subject=user_to_impersonate)
+            if not client_id or not client_secret:
+                raise ValueError("Client ID or Client Secret not set in environment variables.")
+
+            flow = InstalledAppFlow.from_client_config({
+                "installed": {
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token"
+                }
+            }, SCOPES)
+            creds = flow.run_local_server(port=0)
+
+        with open(TOKEN_FILE, 'wb') as token:
+            pickle.dump(creds, token)
 
     return creds
 
@@ -31,7 +52,7 @@ def get_email_summary(service):
     results = service.users().messages().list(userId='me', q=query).execute()
     messages = results.get('messages', [])
 
-    today = datetime.datetime.utcnow().date()
+    today = datetime.datetime.now(datetime.timezone.utc).date()
     summary = f"Email summary for {today}:\n\n"
     for msg in messages:
         msg_data = service.users().messages().get(userId='me', id=msg['id']).execute()
