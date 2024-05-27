@@ -2,11 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="telegram-gmail-bot",
-    version="0.1.14",
+    version="0.1.16",
     author="Catalin Teodorescu",
     author_email="dustfeather@gmail.com",
     description="A bot that connects Telegram with Gmail",
     long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     url="https://github.com/dustfeather/telegram-gmail-bot",
     packages=find_packages(),
     install_requires=[
