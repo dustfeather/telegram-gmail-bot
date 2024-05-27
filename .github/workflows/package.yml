@@ -7,6 +7,8 @@ on:
   pull_request:
     branches:
       - main
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -39,26 +41,8 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
 
-      - name: Publish package to GitHub Packages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          pip install twine
-          twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
-
-      - name: Publish package to GitHub Packages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          TWINE_USERNAME: ${{ github.actor }}
-          TWINE_PASSWORD: ${{ secrets.GH_TOKEN }}
-        run: |
-          pip install twine
-          twine upload --repository-url https://upload.github.com/dustfeather/telegram-gmail-bot dist/*
-
-      - name: Upload package as artifact
-        uses: actions/upload-artifact@v3
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          name: python-package
-          path: dist/*
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
