@@ -69,8 +69,10 @@ def get_email_summary(service):
 
         subject = next((header['value'] for header in headers if header['name'] == 'Subject'), 'No Subject')
         from_ = next((header['value'] for header in headers if header['name'] == 'From'), 'Unknown Sender')
+        message_id = msg['id']
+        email_link = f"https://mail.google.com/mail/u/0/#inbox/{message_id}"
 
-        summary += f"From: {from_}\nSubject: {subject}\n\n"
+        summary += f"From: {from_}\nSubject: {subject}\nLink: {email_link}\n\n"
 
     if not messages:
         summary += "No new emails today."
