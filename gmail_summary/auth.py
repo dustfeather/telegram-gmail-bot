@@ -1,5 +1,3 @@
-# gmail_summary/auth.py
-
 import os
 import pickle
 from google.oauth2.credentials import Credentials

@@ -1,5 +1,3 @@
-# gmail_summary/email_summary.py
-
 import datetime
 
 def get_email_summary(service):

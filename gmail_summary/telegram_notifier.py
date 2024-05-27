@@ -1,5 +1,3 @@
-# gmail_summary/telegram_notifier.py
-
 import telegram
 from tenacity import retry, wait_exponential, stop_after_attempt
 
