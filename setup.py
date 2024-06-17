@@ -40,7 +40,7 @@ setup(
         'sniffio==1.3.1',
         'tenacity==8.3.0',
         'uritemplate==4.1.1',
-        'urllib3==2.2.1',
+        'urllib3==2.2.2',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
